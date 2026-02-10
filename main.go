@@ -22,16 +22,25 @@ const (
 func main() {
 	databaseConnection, err := NewDatabaseConnection()
 	if err != nil {
-		fmt.Errorf("failed to connect to database: %v", err)
+		log.Fatalf("failed to connect to database: %v", err)
 	}
 	fmt.Println("Database connection established")
 	defer databaseConnection.Close()
-	cameraData, err := getCameraData()
-	if err != nil {
-		fmt.Errorf("failed to get camera data: %v", err)
-	}
 
-	testCameras(context.Background(), cameraData)
+	ticker := time.NewTicker(1 * time.Minute) // Run every minute
+	defer ticker.Stop()
+
+	for {
+		cameraData, err := getCameraData()
+		if err != nil {
+			log.Printf("failed to get camera data: %v", err)
+		} else {
+			fmt.Println("Starting camera health check run")
+			testCameras(context.Background(), cameraData)
+		}
+
+		<-ticker.C
+	}
 }
 
 func (r CameraTestResult) String() string {
