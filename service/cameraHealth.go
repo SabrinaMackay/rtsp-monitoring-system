@@ -14,10 +14,10 @@ import (
 	"github.com/golang-queue/queue/core"
 )
 
-func TestCameras(ctx context.Context, cameras []utils.Camera) {
+func CheckCamerasHealthy(ctx context.Context, cameras []utils.Camera) {
 	var wg sync.WaitGroup
 
-	results := make(chan utils.CameraTestResult)
+	results := make(chan utils.CameraHealthResult)
 
 	consumer.StartResultConsumer(results)
 
@@ -28,7 +28,7 @@ func TestCameras(ctx context.Context, cameras []utils.Camera) {
 			return fmt.Errorf("failed to unmarshal camera: %w", err)
 		}
 
-		result := producer.TestCamera(ctx, camera)
+		result := producer.CheckCamera(ctx, camera)
 		results <- result
 		return nil
 	}))
@@ -39,7 +39,7 @@ func TestCameras(ctx context.Context, cameras []utils.Camera) {
 		cam := camera
 		if err := queueCamera.Queue(&cam); err != nil {
 			wg.Done()
-			results <- utils.CameraTestResult{
+			results <- utils.CameraHealthResult{
 				ID:     cam.ID,
 				Name:   cam.Name,
 				Status: err.Error(),

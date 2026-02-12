@@ -19,12 +19,12 @@ func (c *Camera) Bytes() []byte {
 	return jsonData
 }
 
-type CameraTestResult struct {
+type CameraHealthResult struct {
 	ID     int
 	Name   string
 	Status string
 }
 
-func (r CameraTestResult) String() string {
+func (r CameraHealthResult) String() string {
 	return fmt.Sprintf("ID: %d, Name: %s, Status: %s", r.ID, r.Name, r.Status)
 }

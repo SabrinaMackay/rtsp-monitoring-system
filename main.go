@@ -20,7 +20,7 @@ func main() {
 			log.Printf("failed to get camera data: %v", err)
 		} else {
 			fmt.Println("Starting camera health check run")
-			service.TestCameras(context.Background(), cameraData)
+			service.CheckCamerasHealthy(context.Background(), cameraData)
 		}
 		<-ticker.C
 	}

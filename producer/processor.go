@@ -7,16 +7,16 @@ import (
 	"strings"
 )
 
-func TestCamera(ctx context.Context, camera utils.Camera) utils.CameraTestResult {
-	result := utils.CameraTestResult{
+func CheckCamera(ctx context.Context, camera utils.Camera) utils.CameraHealthResult {
+	result := utils.CameraHealthResult{
 		ID:   camera.ID,
 		Name: camera.Name,
 	}
 
-	testCtx, cancel := context.WithTimeout(ctx, utils.FfmpegTimeout)
+	healthCtx, cancel := context.WithTimeout(ctx, utils.FfmpegTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(testCtx, "ffmpeg",
+	cmd := exec.CommandContext(healthCtx, "ffmpeg",
 		"-hide_banner", "-loglevel", "error",
 		"-rtsp_transport", "tcp",
 		"-timeout", utils.RtspTimeout,
@@ -28,7 +28,7 @@ func TestCamera(ctx context.Context, camera utils.Camera) utils.CameraTestResult
 	out, err := cmd.CombinedOutput()
 
 	if err != nil {
-		if testCtx.Err() == context.DeadlineExceeded {
+		if healthCtx.Err() == context.DeadlineExceeded {
 			result.Status = "context_timeout"
 		} else {
 			result.Status = classifyFFmpegErrorStatus(string(out))
@@ -45,7 +45,6 @@ func classifyFFmpegErrorStatus(log string) string {
 
 	errorPatterns := map[string][]string{
 		"unauthorised": {"401", "unauthorised"},
-		"offline":      {"404", "port missing", "invalid argument", "connection refused", "no route to host", "timed out", "could not resolve", "could not find codec", "invalid data"},
 	}
 
 	for errorType, patterns := range errorPatterns {
@@ -56,5 +55,5 @@ func classifyFFmpegErrorStatus(log string) string {
 		}
 	}
 
-	return "unknown_error"
+	return "offline"
 }
