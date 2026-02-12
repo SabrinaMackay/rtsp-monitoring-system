@@ -1,7 +1,8 @@
-package main
+package utils
 
 import (
 	"database/sql"
+
 	"fmt"
 	"os"
 
@@ -38,7 +39,7 @@ func NewDatabaseConnection() (*sql.DB, error) {
 	return db, nil
 }
 
-func getCameraData() ([]Camera, error) {
+func GetCameraData() ([]Camera, error) {
 	db, err := NewDatabaseConnection()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get camera data: %w", err)
